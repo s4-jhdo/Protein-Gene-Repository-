@@ -37,3 +37,15 @@ To determine the number of paralogs, which was used within Table 1 of my researc
 grep -o -E "^[A-Z]\.[a-z]+" AKAP.blastp.detail.filtered.out  | sort | uniq -c
 ```
 After filtering to include high-scoring matches from the BLAST search, this command tallies the quantity of paralogs identified in each species.
+
+# Gene Family Sequence Alignment 
+First, we need to install some software and programs to turn text-based sequence alignment into an HTML file (with aha) and open-source package/environment management system (with conda). Then we will install a2ps to turn the HTML file into a postscript file and install yum as a default software manager. (This installation only needs to happen ONCE). 
+```bash
+conda install -y -n base -c conda-forge aha
+```
+```bash
+sudo yum install -y a2ps
+```
+```bash
+pip install buddysuite
+```
