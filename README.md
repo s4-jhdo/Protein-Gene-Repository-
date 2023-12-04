@@ -121,3 +121,68 @@ Then, repeat calculating the average percent identity with alignbuddy by using t
  alignbuddy -pi ~/labs/lab04-$MYGIT/AKAP/AKAP.homologs.al.fas | awk ' (NR>2)  { for (i=2;i<=NF  ;i++){ sum+=$i;num++} }
      END{ print(100*sum/num) } 
 ```
+# Constructing a Phylogenetic Tree for AKAP Homologs from Sequence Data
+First, the software IQ-TREE will be employed to deduce the most suitable phylogenetic tree from a sequence alignment. To organize this part's bioinformatic data collection and session, first create a directory for this part and label accordingly in sequence to the previous parts using the command: 
+```bash
+mkdir ~/labs/lab05-$MYGIT/AKAP
+cd ~/labs/lab05-$MYGIT/AKAP 
+```
+Mkdir is used to make a new directory, and CD is used here to change to that directory. 
+
+In order to continue, copy the alignment from AKAP folder from lab04 into lab05 as IQTree will put the output files in the same directory as the input file. Use the following command to go to that specific directory: 
+```bash
+cp ~/labs/lab04-$MYGIT/AKAP/AKAP.homologs.al.fas ~/labs/lab05-$MYGIT/AKAP/AKAP.homologs.al.fas   
+```
+The command above is utilized to go to a specific directory that IQTree sorted in terms of files. 
+
+Second, we will use IQ-Tree to find the maximum likehood tree estimate by utilizing the following command: 
+```bash
+iqtree -s ~/labs/lab05-$MYGIT/AKAP/AKAP.homologs.al.fas -bb 1000 -nt 2 
+```
+Initially, the software will compute the optimal amino acid substitution model and amino acid frequencies. Subsequently, it will conduct a tree search, estimating branch lengths during the process with the command above. 
+
+# Rooting the Optimal Phylogeny
+First, to root the optimal phylogeny we will be using a type of rooting named midpoint by using the following command: 
+```bash
+gotree reroot midpoint -i ~/labs/lab05-$MYGIT/AKAP/AKAP.homologs.al.fas.treefile -o ~/labs/lab05-$MYGIT/AKAP/AKAP.homologs.al.mid.treefile
+```
+The command above will provide a view of an optimal phylogenetic tree that can be used for our research. 
+
+Second, we can view the rooted tree with the command line: 
+```bash
+nw_order -c n ~/labs/lab05-$MYGIT/AKAP/AKAP.homologs.al.mid.treefile  | nw_display -
+```
+This command is used to view the resulting ASCII Tree that can be used to support our investigation. 
+
+Then, to make the large trees easier to view, nw_order can be used as a graphic with the command line: 
+```bash
+nw_order -c n ~/labs/lab05-$MYGIT/AKAP/AKAP.homologs.al.mid.treefile | nw_display -w 1000 -b 'opacity:0' -s  >  ~/labs/lab05-$MYGIT/AKAP/AKAP.homologs.al.mid.treefile.svg -
+```
+The nw_order initially arranges the clades by the number of descendants, a process known as ladderization, aiming to enhance the visibility of large trees. However, it's important to note that this approach may introduce certain biases in interpretation.
+
+# Branch Lengths 
+To distinguish between phylograms and cladograms, due to the need of visualizing short branch lengths use the following command line: 
+```bash
+nw_order -c n ~/labs/lab05-$MYGIT/AKAP/AKAP.homologs.al.mid.treefile | nw_topology - | nw_display -s  -w 1000 > ~/labs/lab05-$MYGIT/AKAP/AKAP.homologs.al.midCl.treefile.svg -
+```
+The default tree displayed in nw_display (and many other programs) is a phylogram, indicating that the lengths of branches correspond proportionally to the accumulated number of substitutions in the sequence along each branch. When dealing with very short branch lengths, visualizing clades on a phylogram can be challenging. Consider switching the view to a cladogram using the following command.
+
+# Outgroup Rooting 
+A secondary approach to rooting is to specify an outgroup. To express an outgroup use the following command lines: 
+```bash
+nw_reroot subphyla.tre Echinodermata >subphyla.echinoderm_reroot.tre
+nw_display ~/labs/lab05-$MYGIT/subphyla.echinoderm_reroot.tre
+```
+This command allows us to reroot the tree with the branching of echinoderms as the initial event. It's important to note that although this establishes a root, the true root is the common ancestor of Echinoderms/Hemichordates and the remaining deuterostomes.
+
+# Printing AKAP Alignment into PDF for Research 
+First, we need to install latex suit and use Rscript to print the alignments faster with the following command: 
+```bash
+sudo yum install texlive
+```
+```bash
+Rscript --vanilla ~/labs/lab05-$MYGIT/installMSA.R
+```
+```bash
+Rscript --vanilla ~/labs/lab05-$MYGIT/plotMSA.R  ~/labs/lab05-$MYGIT/AKAP/AKAP.homologs.al.fas ~/labs/lab05-$MYGIT/AKAP/AKAP.homologs.al.fas.pdf
+```
