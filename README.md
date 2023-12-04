@@ -186,3 +186,119 @@ Rscript --vanilla ~/labs/lab05-$MYGIT/installMSA.R
 ```bash
 Rscript --vanilla ~/labs/lab05-$MYGIT/plotMSA.R  ~/labs/lab05-$MYGIT/AKAP/AKAP.homologs.al.fas ~/labs/lab05-$MYGIT/AKAP/AKAP.homologs.al.fas.pdf
 ```
+The commands above was used to print the AKAP alignment into a file for later analysis within the research paper. 
+
+# Reconciling the AKAP Gene Family with the Species Tree
+In order to continue and stay organized with bioinformatic data collection, create a directory by using the following command: 
+```bash
+cd ~/labs/lab06-$MYGIT/AKAP
+```
+The command creates a new directory to work under for proper file storage.
+
+For the first step, a midpoint-rooted gene tree that was generated previously for the AKAP gene family. You can check if the tree is present with the following command: 
+```bash
+ls ~/labs/lab06-$MYGIT/AKAP/AKAP.homologs.al.mid.treefile
+```
+It is important to note that a midpoint rooted gene tree will be used for your own protein and gene family. To make sure you are utilizing your own protein use the following command line: 
+```bash
+mkdir ~/labs/lab06-$MYGIT/AKAP
+```
+These two commands above help view if your midpoint-rooted gene was generated correctly and to be sure that you are working under the correct directory. 
+
+Then we would want to make a copy of this gene tree from the previous stages (in this case lab5, as it was labeled as such) into your current directory folder (in this case lab6) with the following command line: 
+```bash
+cp ~/labs/lab05-$MYGIT/AKAP/AKAP.homologs.al.mid.treefile ~/labs/lab06-$MYGIT/AKAP/AKAP.homologs.al.mid.treefile
+```
+# Reconcile the Gene and Species Tree Utilizing Notung
+First, to perform the reconciliation use the following command line: 
+```bash
+java -jar ~/tools/Notung-3.0-beta/Notung-3.0-beta.jar -s ~/labs/lab06-$MYGIT/species.tre -g ~/labs/lab06-$MYGIT/AKAP/AKAP.homologs.al.mid.treefile --reconcile --speciestag prefix --savepng --events --outputdir ~/labs/lab06-$MYGIT/AKAP/
+```
+This command will generate the reconciliation tree of your own specific gene family. 
+
+Second, view the "duplications" and "losses" columns for your specific tree with the following command: 
+```bash
+nw_display ~/labs/lab06-$MYGIT/species.tre
+```
+This command line helps focus specifically on the "Duplications" and "Losses" columns. 
+
+Then, view the name that Notung assigned to the internal nodes that do not have formal taxonomic names with the following command:
+```bash
+grep NOTUNG-SPECIES-TREE ~/labs/lab06-$MYGIT/AKAP/AKAP.homologs.al.mid.treefile.reconciled | sed -e "s/^\[&&NOTUNG-SPECIES-TREE//" -e "s/\]/;/" | nw_display -
+```
+This command is used as a tool in order to know which lineages the internal nodes came from that did not have a formal taxonomic name. 
+
+Finally, generate a RecPhyloXML object and view the gene-within-species tree with thirdkind by using the following commands: 
+```bash
+python2.7 ~/tools/recPhyloXML/python/NOTUNGtoRecPhyloXML.py -g ~/labs/lab06-$MYGIT/AKAP/AKAP.homologs.al.mid.treefile.reconciled --include.species
+```
+```bash
+thirdkind -Iie -D 40 -f ~/labs/lab06-$MYGIT/AKAP/AKAP.homologs.al.mid.treefile.reconciled.xml -o  ~/labs/lab06-$MYGIT/AKAP/AKAP.homologs.al.mid.treefile.reconciled.svg
+```
+These commands were used to create a gene-reconciliation-with species tree reconciliation with the use of thirdkind to view the gene tree. 
+
+# Protein Domain Prediction 
+First, we need to use unaligned protein sequences from the previous bioinformatic steps. In order to do this, make a directory for the AKAP sequences and change into that specific directory with the following command line: 
+```bash
+mkdir ~/labs/lab08-$MYGIT/AKAP && cd ~/labs/lab08-$MYGIT/AKAP
+```
+```bash
+cp ~/labs/lab05-$MYGIT/AKAP/AKAP.homologs.al.mid.treefile ~/labs/lab08-$MYGIT/AKAP
+```
+Second, make a copy of the raw unaligned sequence by using sed's substitute command and direct it into our specific folder (in this case, lab8) with the following command: 
+```bash
+sed 's/*//' ~/labs/lab04-$MYGIT/AKAP/AKAP.homologs.fas > ~/labs/lab08-$MYGIT/AKAP/AKAP.homologs.fas
+```
+Sed's substiture command is used to substitute any instance of an asterisk with nothing. The other command is used to output our AKAP protein folder into lab8 for later analysis. 
+
+Third, download the Pfam database with the following command: 
+```bash
+wget -O ~/data/Pfam_LE.tar.gz ftp://ftp.ncbi.nih.gov/pub/mmdb/cdd/little_endian/Pfam_LE.tar.gz && tar xfvz ~/data/Pfam_LE.tar.gz  -C ~/data
+```
+This command is used to download the Pfam database which contains models that enable us to predict domains and important sites alongside functional analysis of proteins through classification. 
+
+# Running RPS-Blast
+First, to run RPS-Blast, use the following command: 
+```bash
+rpsblast -query ~/labs/lab08-$MYGIT/AKAP/AKAP.homologs.fas -db ~/data/Pfam -out ~/labs/lab08-$MYGIT/AKAP/AKAP.rps-blast.out  -outfmt "6 qseqid qlen qstart qend evalue stitle" -evalue .0000000001
+```
+This command line will give us the output of the Pfam data for the AKAP gene which will be used in later analysis and research paper. 
+
+Second, run a script that enables the plotting of the pfam domain predictions from rps-blast next to their cognate protein on the phylogeny with the following command: 
+```bash
+sudo /usr/local/bin/Rscript  --vanilla ~/labs/lab08-$MYGIT/plotTreeAndDomains.r ~/labs/lab08-$MYGIT/AKAP/AKAP.homologs.al.mid.treefile
+~/labs/lab08-$MYGIT/AKAP/AKAP.rps-blast.out
+~/labs/lab08-$MYGIT/AKAP/AKAP.tree.rps.pdf
+```
+The Sudo command is used to run as a computer administrator in the case of needing to install packages. /usr/local/bin/Rscript is used as a program to allow you to run an R script from the command line without opening up the R console. --vanilla command indicates to R to not save or restore a workspace or previous settings. The tree Rps-blast output file will generate the midpoint rooted tree file for the AKAPS proteins, pfam domains from rps-blast and an output pdf file will be created. 
+
+Now, we would want to look at the predited domains in more detail for our research paper. 
+To focus on the predictions in the Pfam database use the following command line: 
+```bash
+mlr --inidx --ifs "\t" --opprint  cat ~/labs/lab08-$MYGIT/AKAP/AKAP.rps-blast.out | tail -n +2 | less -S
+```
+This command line will generate a domain-on-tree graphic.
+
+Then, examine the distribution of Pfam domains across proteins with the following command line: 
+```bash
+cut -f 1 ~/labs/lab08-$MYGIT/AKAP/AKAP.rps-blast.out | sort | uniq -c
+```
+```bash
+cut -f 6 ~/labs/lab08-$MYGIT/AKAP/AKAP.rps-blast.out | sort | uniq -c
+```
+```bash
+awk '{a=$4-$3;print $1,'\t',a;}' ~/labs/lab08-$MYGIT/AKAP/AKAP.rps-blast.out |  sort  -k2nr
+```
+```bash
+awk '{a=$4-$3;print $1,'\t',a;}' ~/labs/lab08-$MYGIT/AKAP/AKAP.rps-blast.out |  sort  -k2nr
+```
+The commands above will generate and tell us which proteins have more than one annotation, which Pfam domain annotation is commonly found, which protein has the longest annotated protein domain, and which protein has the shortest annotated protein domains respectively. 
+
+To sort which protein has a domain annotation with the best e-value use the following command: 
+```bash
+cut -f 1,5 -d $'\t' ~/labs/lab08-$MYGIT/AKAP/AKAP.rps-blast.out | sort -k2,2rn -t $'\t'
+```
+This command is used to know which protein has a domain annotation with the best e-value while avoiding the process by hand. 
+
+
+
