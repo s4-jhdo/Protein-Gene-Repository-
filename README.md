@@ -60,7 +60,7 @@ mkdir ~/labs/lab04-$MYGIT/AKAP
 This command is used to create a folder for the AKAP gene family to be later used in a series of bioinformatic steps. 
 ```bash
 cd ~/labs/lab04-$MYGIT/AKAP
-
+```
 Type in the following command to obtain the sequences that are within the BLAST output file:
 ```bash
 seqkit grep --pattern-file ~/labs/lab03-$MYGIT/AKAP/AKAP.blastp.detail.filtered.out ~/labs/lab03-$MYGIT/allprotein.fas > ~/labs/lab04-$MYGIT/AKAP/AKAP.homologs.fas
